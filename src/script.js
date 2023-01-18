@@ -63,6 +63,28 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+// Hovering
+const mouse = new THREE.Vector2();
+
+window.addEventListener('mousemove', (e) => {
+  mouse.x = (e.clientX / sizes.width) * 2 - 1;
+  mouse.y = -(e.clientY / sizes.height) * 2 + 1;
+});
+
+window.addEventListener('click', () => {
+  if (currentIntersect) {
+    console.log('Clicked on a sphere');
+
+    if (currentIntersect.object === object1) {
+      console.log('Clicked on a sphere 1');
+    } else if (currentIntersect.object === object2) {
+      console.log('Clicked on a sphere 2');
+    } else if (currentIntersect.object === object3) {
+      console.log('Clicked on a sphere 3');
+    }
+  }
+});
+
 /**
  * Camera
  */
@@ -93,6 +115,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  * Animate
  */
 const clock = new THREE.Clock();
+let currentIntersect = null;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
@@ -101,22 +124,36 @@ const tick = () => {
   object2.position.y = Math.sin(elapsedTime * 0.8) * 1.5;
   object3.position.y = Math.sin(elapsedTime * 1.5) * 1.5;
 
-  // Cast a ray
-  const rayOrigin = new THREE.Vector3(-3, 0, 0);
-  const rayDirection = new THREE.Vector3(1, 0, 0);
-  raycaster.set(rayOrigin, rayDirection);
+  //   // Cast a ray
+  raycaster.setFromCamera(mouse, camera);
+
+  // const rayOrigin = new THREE.Vector3(-3, 0, 0);
+  // const rayDirection = new THREE.Vector3(1, 0, 0);
+  // raycaster.set(rayOrigin, rayDirection);
 
   const objectsToTest = [object1, object2, object3];
   const intersects = raycaster.intersectObjects(objectsToTest);
 
-  // Initially colors the spheres
+  //   // Initially colors the spheres
   for (const object of objectsToTest) {
     object.material.color.set('#ff0000');
   }
 
-  // When hit the array, color blue
+  //   // When hit the array, color blue
   for (const intersect of intersects) {
     intersect.object.material.color.set('#0000ff');
+  }
+
+  if (intersects.length) {
+    // if (currentIntersect === null) {
+
+    // }
+    currentIntersect = intersects[0];
+  } else {
+    // if (currentIntersect) {
+
+    // }
+    currentIntersect = null;
   }
 
   // Update controls
